@@ -1,0 +1,58 @@
+# Generated executables and Windows resources.
+*.exe
+*.dll
+*.syso
+*.test
+/data/
+/dist/
+/runtime/
+/work/
+/.cache/
+
+# Local application state and network observations.
+/InternetStability-data/
+/InternetStability-logs/
+/logs/
+/diagnostics/
+/diagnosis-runs/
+/radio/
+/ethernet/
+/routes/
+/cod-relay-runs/
+/cs2-relay-runs/
+*.csv
+*.jsonl
+*.etl
+*.log
+*.tmp
+*-live.json
+custom-targets.json
+settings.json
+log-settings.json
+run-state.json
+client-state.json
+diagnosis-index.json
+diagnostics-stop.flag
+stop.flag
+
+# Credentials and machine-local editor configuration.
+github.txt
+*.key
+*.pem
+*.pfx
+.env
+.env.*
+.vscode/
+.idea/
+
+# Local analysis and working notes.
+code-style*.md
+code-style*.txt
+style-analysis*.md
+style-analysis*.txt
+/.local-notes/
+/docs/process-notes/
+
+# Local assistant workspace metadata.
+/.codex/
+/.agents/
