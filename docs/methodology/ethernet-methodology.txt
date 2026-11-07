@@ -1,0 +1,47 @@
+Ethernet telemetry (read only)
+
+The native Go collector in backend/networkmanager/collectors/ reads the selected adapter using IP Helper GetIfTable2
+and GetAdaptersAddresses. The network manager samples state, link speed and
+interface counters every 500 ms by default. It does not change NIC, route, firewall
+or router settings and sends no network probes of its own.
+
+rxErrors/txErrors/rxDiscards/txDiscards are Windows interface counters. The summary
+contains nonnegative increases since the baseline. If one counter decreases, only
+that counter starts a new baseline; independent valid increases are preserved.
+counterResets counts individual counter resets, not intervals. Missing/unsupported
+counters remain null, rather than zero. Counters are adapter-wide, not game-only.
+
+CRC/FCS is not separately exposed through this generic Windows interface.
+crcFcsAvailable is false and crcFcsErrors is null. This does not imply that the NIC
+or router hardware has no such counter. A corrupted PC-to-router frame can be
+counted only at the receiving router port. Zero counters on the PC do not establish
+that the cable works without errors in both directions. Discards need not be
+physical-line errors; they may also reflect buffering or other driver conditions.
+
+linkDownCount counts an observed Up -> non-Up transition. A cable already down at
+the first sample is the starting condition, not an observed disconnect. Missing
+adapters are a non-Up condition. A query failure marked Unknown is not treated as
+proof of link loss. linkUpCount counts a subsequent known recovery. Speed changes
+are compared between positive Up-state speeds, including a different speed after
+recovery (e.g. 1000 -> down -> 100 Mbps).
+
+totalLinkDownMs includes completed and ongoing observed intervals. Timestamp and
+duration precision are limited by polling; a disconnect shorter than one sample
+interval may be missed. Correlating these events with independently source-bound
+gateway probes can narrow the affected segment but coincidence is not proof of
+causality. ICMP nonresponse does not establish game UDP loss.
+
+Files under the selected measurement store:
+diagnosis-runs/<id>/ethernet/{summary.json,ethernet.csv,ethernet-events.jsonl}.
+The current snapshot is diagnosis-runs/<id>/ethernet-live.json. Live JSON has
+kind="ethernet_line" and is atomically replaced. Event JSONL contains one object
+per line; the live snapshot keeps the latest 250 events while JSONL retains all.
+
+Primary sources:
+https://learn.microsoft.com/en-us/windows/win32/fwp/wmi/netadaptercimprov/msft-netadapterstatisticssettingdata
+https://learn.microsoft.com/en-us/windows/win32/api/netioapi/ns-netioapi-mib_if_row2
+https://www.cisco.com/c/en/us/support/docs/ios-nx-os-software/nx-os-software/217554-understand-cyclic-redundancy-check-crc.html
+
+The diagnostic tracker lives in backend/networkmanager/diagnostics/. Its tests are
+separate blackbox packages under tests/. The default measurement store is
+data/statistics/; an explicitly selected user directory takes precedence.

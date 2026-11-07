@@ -1,0 +1,58 @@
+Native Wi-Fi radio statistics (Windows, read only)
+
+The native Go collector (backend/networkmanager/collectors/radio_windows.go) opens WLAN API v2 and queries only:
+ - wlan_intf_opcode_statistics (0x10000101)
+ - wlan_intf_opcode_rssi (0x10000102)
+ - wlan_intf_opcode_realtime_connection_quality (19)
+It never changes settings, scans neighboring networks, retrieves credentials,
+or queries current_connection. Legacy sampling recorded these queries working without elevation on an Intel
+Wi-Fi 6E AX211 on 2026-10-30. This is historical driver evidence, not a validation
+result for the refactored Go build. Driver/API availability must be checked on
+the Windows host; unsupported quality and counters remain unavailable.
+
+WLAN_STATISTICS native layout validated against Microsoft wlanapi.h:
+3 ULONGLONG header fields (24 bytes), two WLAN_MAC_FRAME_STATISTICS
+(12 ULONGLONG each =96 bytes), DWORD dwNumberOfPhys at offset216,
+4 bytes padding, PHY array at224. Each WLAN_PHY_FRAME_STATISTICS is18
+ULONGLONG fields (144 bytes). The previously recorded driver result was1088 bytes =224+6*144.
+
+This Intel driver returns six identical PHY counter arrays. The collector
+uses PHY0 as a representative and never adds the duplicates. Native counters
+remain in radio-raw.jsonl for review. A decreasing counter starts a new
+baseline and increments counterResets; that interval is not subtracted.
+
+Microsoft defines:
+ txFrames: successfully transmitted MSDU/MMPDUs.
+ retryFrames: successful transmissions that required at least one retry.
+ multipleRetryFrames: successful transmissions requiring more than one retry.
+ failedFrames: transmissions failing because attempts exceeded retry limit.
+ ackFailure: expected ACK not received; one frame can cause multiple events.
+ fcsErrors: received MPDUs whose frame-check sequence failed.
+
+retryPctSuccessfulTx =100*delta(retryFrames)/delta(txFrames), for the chosen
+representative PHY. This is a link-layer driver statistic, not the fraction
+of UDP datagrams lost, nor the number of individual retry attempts.
+It describes outgoing frames on the PC-to-access-point link. It cannot
+count all incoming frames the access point failed to deliver to this PC.
+Counters are adapter-wide and include traffic other than the game.
+
+RSSI is reported in dBm. QualityPct is the API's0..100 connection quality.
+txRateNative/rxRateNative are retained in their raw native API units;
+the dashboard need not use these to diagnose loss.
+
+Primary sources:
+https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/ns-wlanapi-wlan_statistics
+https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/ns-wlanapi-wlan_phy_frame_statistics
+https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/ns-wlanapi-wlan_mac_frame_statistics
+https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/ns-wlanapi-wlan_realtime_connection_quality
+https://learn.microsoft.com/en-us/windows/win32/nativewifi/wi-fi-access-location-changes
+https://github.com/microsoft/win32metadata/blob/main/generation/WinSDK/RecompiledIdlHeaders/um/wlanapi.h
+
+Diagnostic coordination and summaries are in backend/networkmanager/diagnostics/.
+New files are under the selected measurement directory:
+  diagnosis-runs/<id>/radio/summary.json
+  diagnosis-runs/<id>/radio/radio.csv
+  diagnosis-runs/<id>/radio/radio-raw.jsonl
+The live snapshot is diagnosis-runs/<id>/radio-live.json. The default store is
+data/statistics/; an explicit user-selected store remains authoritative. Parser
+and counter tests live separately under tests/, not alongside runtime source.
