@@ -1,0 +1,43 @@
+{
+  "updatedAt": "2026-10-30T19:08:41.5313109+07:00",
+  "sourceUrl": "https://api.steampowered.com/ISteamApps/GetSDRConfig/v1/?appid=730",
+  "appId": 730,
+  "revision": 1793064244,
+  "note": "Officially published Steam Datagram Relays for CS2. These are ingress relay addresses, not guaranteed server IPs for your matches. ICMP replies may be rate-limited; a UDP range does not imply an open TCP port.",
+  "regions": [
+    {
+      "id": "sgp",
+      "name": "Singapore · Southeast Asia",
+      "kind": "steam_sdr_relay",
+      "addresses": [
+        "103.10.124.116",
+        "103.10.124.117",
+        "103.10.124.118",
+        "103.10.124.119",
+        "103.10.124.120",
+        "103.10.124.121"
+      ],
+      "udpPorts": "27015–27060",
+      "officialDescription": "Singapore"
+    },
+    {
+      "id": "hkg",
+      "name": "Hong Kong · neighboring region",
+      "kind": "steam_sdr_relay",
+      "addresses": [
+        "103.28.54.163",
+        "103.28.54.164",
+        "103.28.54.167",
+        "103.28.54.172",
+        "103.28.54.174",
+        "103.28.54.179",
+        "103.28.54.180",
+        "103.28.54.183",
+        "103.28.54.188",
+        "103.28.54.189"
+      ],
+      "udpPorts": "27015–27060",
+      "officialDescription": "Hong Kong"
+    }
+  ]
+}

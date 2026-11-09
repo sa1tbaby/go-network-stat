@@ -1,0 +1,31 @@
+{
+  "game": "cod",
+  "updatedAt": "2026-10-30T20:59:52.9886662+07:00",
+  "note": "Regional checkpoints. These addresses are not confirmed Activision servers. Adding a target creates an ICMP card, not an iperf3 UDP test.",
+  "sources": [
+    {
+      "title": "DataPacket · official test nodes",
+      "url": "https://www.datapacket.com/speed-test-files/asia-pacific"
+    },
+    { "title": "Vultr · Singapore Looking Glass", "url": "https://sgp-ping.vultr.com/" },
+    {
+      "title": "Community · public iperf3 servers",
+      "url": "https://github.com/R0GGER/public-iperf3-servers#asia"
+    }
+  ],
+  "regions": [
+    {
+      "id": "hkg",
+      "name": "Hong Kong · regional checkpoint",
+      "targets": [{ "address": "84.17.57.129", "label": "DataPacket · Hong Kong" }]
+    },
+    {
+      "id": "sgp",
+      "name": "Singapore · regional checkpoints",
+      "targets": [
+        { "address": "89.187.162.1", "label": "DataPacket · Singapore" },
+        { "address": "45.32.100.168", "label": "Vultr · Singapore" }
+      ]
+    }
+  ]
+}
