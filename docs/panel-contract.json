@@ -1,0 +1,714 @@
+{
+  "version": 1,
+  "source": "Legacy API and journal compatibility baseline with an English user interface",
+  "dashboardSha256": "d238ee2248f0d0e5d98a1546382777d964514c87f51bdca6253312fac13641fc",
+  "legacyDashboardSha256": "3f44c91ffef1805c7f6587a21b586c50310b0b9e46da7f00a40d0e491c123df7",
+  "dashboardLanguage": "en",
+  "transport": {
+    "host": "127.0.0.1",
+    "defaultPort": 8765,
+    "portAttempts": 20,
+    "sameOrigin": true,
+    "jsonCase": "camelCase",
+    "dates": "ISO 8601/RFC3339 with UTC offset; timestamps denote the same instant",
+    "historyTimestamp": "Unix milliseconds",
+    "emptyArrays": [],
+    "unknownNumbers": null,
+    "commandError": {
+      "status": 400,
+      "json": {
+        "error": "non-empty human-readable message"
+      }
+    },
+    "foreignOrigin": 403,
+    "unknownEndpoint": 404
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "response": "asset dashboard.html"
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard.html",
+      "response": "asset dashboard.html"
+    },
+    {
+      "method": "GET",
+      "path": "/api/status",
+      "response": "status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/logs",
+      "response": "logs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/diagnostics",
+      "response": "diagnostics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/official-relays",
+      "response": "asset official-relays.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/cod/test-targets",
+      "response": "asset cod-test-targets.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/cod/relay/status",
+      "response": "relay"
+    },
+    {
+      "method": "GET",
+      "path": "/api/cs2/relay/status",
+      "response": "relay"
+    },
+    {
+      "method": "GET",
+      "path": "/api/route/status",
+      "response": "route",
+      "query": {
+        "adapterId": "exact adapter ID",
+        "address": "IPv4"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/start",
+      "query": {},
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/api/stop",
+      "query": {},
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mark",
+      "query": {},
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/api/shutdown",
+      "query": {},
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interval",
+      "query": {
+        "ms": "250|1000"
+      },
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/api/target",
+      "query": {
+        "host": "IPv4 or DNS hostname",
+        "port": "optional TCP port 1..65535"
+      },
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/api/target/remove",
+      "query": {
+        "address": "IPv4"
+      },
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cod/test-target/add",
+      "query": {
+        "address": "catalog IPv4"
+      },
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cod/relay/start",
+      "query": {},
+      "response": "relayStart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cs2/relay/start",
+      "query": {},
+      "response": "relayStart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/route/start",
+      "query": {
+        "adapterId": "exact adapter ID",
+        "address": "existing ICMP target IPv4"
+      },
+      "response": "routeStart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/logs/pick",
+      "query": {},
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/api/logs/select",
+      "query": {
+        "path": "absolute directory"
+      },
+      "response": "storeCommand"
+    },
+    {
+      "method": "POST",
+      "path": "/api/logs/reset",
+      "query": {
+        "directory": "confirmed current directory"
+      },
+      "response": "storeCommand"
+    },
+    {
+      "method": "POST",
+      "path": "/api/diagnostics/start",
+      "query": {
+        "adapterId": "available source-bound adapter"
+      },
+      "response": "diagnosisStart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/diagnostics/stop",
+      "query": {
+        "runId": "one run ID"
+      },
+      "response": "diagnosisStop"
+    },
+    {
+      "method": "POST",
+      "path": "/api/diagnostics/delete",
+      "query": {
+        "runId": "one completed run ID",
+        "directory": "confirmed current store"
+      },
+      "response": "diagnosisDelete"
+    }
+  ],
+  "objects": {
+    "status": {
+      "appId": "string",
+      "running": "boolean",
+      "serverRunning": "boolean",
+      "customTargets": "array",
+      "started": "date",
+      "now": "date",
+      "intervalMs": "integer",
+      "timeoutMs": "integer",
+      "logDir": "string",
+      "adapters": "array",
+      "targets": "array",
+      "recentEvents": "array"
+    },
+    "adapter": {
+      "id": "string",
+      "name": "string",
+      "kind": "string",
+      "state": "string",
+      "ipv4": "string|null",
+      "gateway": "string|null",
+      "index": "integer",
+      "speedMbps": "number",
+      "rxErrors": "integer",
+      "txErrors": "integer",
+      "rxDiscards": "integer",
+      "txDiscards": "integer",
+      "lastChange": "date|null",
+      "icmpSafe": "boolean",
+      "available": "boolean"
+    },
+    "target": {
+      "adapterId": "string",
+      "adapterName": "string",
+      "kind": "string",
+      "address": "string",
+      "protocol": "string",
+      "port": "integer",
+      "details": "customTarget|null",
+      "reachability": "string",
+      "all": "metrics",
+      "last60": "metrics",
+      "last300": "metrics",
+      "inFlight": "boolean",
+      "history": "array"
+    },
+    "metrics": {
+      "sent": "integer",
+      "received": "integer",
+      "lost": "integer",
+      "errors": "integer",
+      "lossPct": "number|null",
+      "avgMs": "number|null",
+      "p95Ms": "number|null",
+      "maxMs": "number|null",
+      "jitterMs": "number|null",
+      "above20Ms": "integer",
+      "above50Ms": "integer",
+      "above100Ms": "integer",
+      "above200Ms": "integer"
+    },
+    "point": {
+      "t": "integer",
+      "ok": "boolean",
+      "rttMs": "number|null",
+      "status": "string",
+      "toolError": "boolean"
+    },
+    "event": {
+      "time": "date",
+      "kind": "string",
+      "message": "string"
+    },
+    "customTarget": {
+      "address": "string",
+      "host": "string",
+      "port": "integer",
+      "addedAt": "date",
+      "game": "string|null",
+      "label": "string|null",
+      "origin": "string|null",
+      "observedAt": "date|null",
+      "sourceIp": "string|null",
+      "evidenceFile": "string|null",
+      "udpPort": "integer|null",
+      "localPort": "integer|null",
+      "inEvents": "integer|null",
+      "outEvents": "integer|null"
+    },
+    "logs": {
+      "directory": "string",
+      "choosing": "boolean",
+      "busy": "boolean",
+      "warning": "string|null",
+      "selection": "selection"
+    },
+    "selection": {
+      "state": "string",
+      "directory": "string|null",
+      "error": "string|null"
+    },
+    "diagnostics": {
+      "running": "boolean",
+      "activeCount": "integer",
+      "maxConcurrent": "integer",
+      "storageDirectory": "string",
+      "started": "date|null",
+      "error": "string|null",
+      "currentRunId": "string|null",
+      "network": "object|null",
+      "radio": "object|null",
+      "ethernet": "object|null",
+      "runs": "array"
+    },
+    "diagnosisRun": {
+      "id": "string",
+      "adapterName": "string",
+      "started": "date",
+      "label": "string",
+      "running": "boolean",
+      "stopRequested": "boolean",
+      "error": "string|null",
+      "network": "object|null",
+      "radio": "object|null",
+      "ethernet": "object|null"
+    },
+    "network": {
+      "appId": "string",
+      "running": "boolean",
+      "pid": "integer",
+      "started": "date",
+      "now": "date",
+      "sourceIp": "string",
+      "interfaceIndex": "integer",
+      "adapterName": "string",
+      "durationSeconds": "integer",
+      "elapsedSeconds": "number",
+      "deadlineMs": "integer",
+      "maxSchedulerLagMs": "number",
+      "logDir": "string",
+      "error": "string|null",
+      "note": "string",
+      "targets": "array"
+    },
+    "route": {
+      "state": "string",
+      "adapterId": "string",
+      "address": "string",
+      "hops": "array",
+      "destinationReached": "boolean",
+      "conclusion": "string"
+    },
+    "routeJob": {
+      "appId": "string",
+      "state": "string",
+      "adapterId": "string",
+      "address": "string",
+      "startedAt": "date",
+      "updatedAt": "date",
+      "error": "string|null",
+      "hops": "array",
+      "destinationReached": "boolean",
+      "conclusion": "string",
+      "sampleGoal": "integer",
+      "timeoutMs": "integer",
+      "maxHops": "integer",
+      "phase": "string",
+      "logFile": "string"
+    },
+    "routeHop": {
+      "ttl": "integer",
+      "address": "string|null",
+      "addresses": "array",
+      "sent": "integer",
+      "received": "integer",
+      "toolErrors": "integer",
+      "noReplyPct": "number|null",
+      "avgMs": "number|null",
+      "minMs": "number|null",
+      "maxMs": "number|null",
+      "probeStatuses": "array",
+      "assessment": "string",
+      "note": "string|null"
+    },
+    "relay": {
+      "game": "string",
+      "state": "string",
+      "running": "boolean",
+      "message": "string",
+      "durationSeconds": "integer"
+    },
+    "relayRun": {
+      "game": "string",
+      "state": "string",
+      "running": "boolean",
+      "message": "string",
+      "durationSeconds": "integer",
+      "runId": "string",
+      "started": "date",
+      "updated": "date",
+      "completed": "date|null",
+      "gamePid": "integer",
+      "helperPid": "integer|null",
+      "error": "string|null",
+      "addedAddress": "string|null",
+      "analysis": "object|null",
+      "logDirectory": "string"
+    },
+    "ok": {
+      "ok": "boolean"
+    },
+    "storeCommand": {
+      "ok": "boolean",
+      "directory": "string"
+    },
+    "diagnosisStart": {
+      "ok": "boolean",
+      "runId": "string",
+      "activeCount": "integer",
+      "maxConcurrent": "integer"
+    },
+    "diagnosisStop": {
+      "ok": "boolean",
+      "runId": "string"
+    },
+    "diagnosisDelete": {
+      "ok": "boolean",
+      "runId": "string"
+    },
+    "relayStart": {
+      "ok": "boolean",
+      "runId": "string"
+    },
+    "routeStart": {
+      "ok": "boolean",
+      "reused": "boolean"
+    },
+    "networkTarget": {
+      "id": "string",
+      "address": "string",
+      "protocol": "string",
+      "scope": "string",
+      "pps": "integer",
+      "pending": "integer",
+      "completed": "integer",
+      "received": "integer",
+      "unansweredByDeadline": "integer",
+      "lossPct": "number|null",
+      "reachability": "string",
+      "toolErrors": "integer",
+      "lateRepliesAfterTimeout": "integer",
+      "avgMs": "number|null",
+      "p95Ms": "number|null",
+      "maxMs": "number|null",
+      "latencyThresholds": "array",
+      "byPayload": "array",
+      "maxSchedulerLagMs": "number"
+    },
+    "radio": {
+      "schemaVersion": "integer",
+      "kind": "string",
+      "running": "boolean",
+      "started": "date",
+      "updated": "date",
+      "adapterName": "string",
+      "interfaceGuid": "string",
+      "available": "boolean",
+      "latestStatsAvailable": "boolean",
+      "logDirectory": "string",
+      "latest": "radioLatest",
+      "summary": "radioSummary",
+      "note": "string"
+    },
+    "radioLatest": {
+      "time": "date",
+      "rssiDbm": "number|null",
+      "qualityPct": "number|null",
+      "txRateNative": "number|null",
+      "rxRateNative": "number|null"
+    },
+    "radioSummary": {
+      "samples": "integer",
+      "validStatsSamples": "integer",
+      "elapsedSeconds": "number",
+      "counterResets": "integer",
+      "phyIndex": "integer",
+      "duplicatePhyCounters": "boolean",
+      "txFrames": "number",
+      "retryFrames": "number",
+      "multipleRetryFrames": "number",
+      "failedFrames": "number",
+      "ackFailures": "number",
+      "fcsErrors": "number",
+      "retryPctSuccessfulTx": "number|null",
+      "rssiMinDbm": "number|null",
+      "rssiMaxDbm": "number|null"
+    },
+    "ethernet": {
+      "schemaVersion": "integer",
+      "kind": "string",
+      "pid": "integer",
+      "running": "boolean",
+      "started": "date",
+      "updated": "date",
+      "adapterName": "string",
+      "available": "boolean",
+      "latestStatsAvailable": "boolean",
+      "intervalMs": "integer",
+      "logDirectory": "string",
+      "latest": "ethernetSample",
+      "summary": "ethernetSummary",
+      "events": "array",
+      "note": "string",
+      "error": "string|null"
+    },
+    "ethernetSample": {
+      "time": "date",
+      "elapsedMs": "number",
+      "state": "string",
+      "speedMbps": "number|null",
+      "adapterFound": "boolean",
+      "countersAvailable": "boolean",
+      "rxErrors": "integer|null",
+      "txErrors": "integer|null",
+      "rxDiscards": "integer|null",
+      "txDiscards": "integer|null",
+      "crcFcsAvailable": "boolean",
+      "crcFcsErrors": "integer|null",
+      "error": "string|null"
+    },
+    "ethernetSummary": {
+      "samples": "integer",
+      "validSamples": "integer",
+      "validCounterSamples": "integer",
+      "elapsedSeconds": "number",
+      "counterResets": "integer",
+      "rxErrorsDelta": "integer|null",
+      "txErrorsDelta": "integer|null",
+      "rxDiscardsDelta": "integer|null",
+      "txDiscardsDelta": "integer|null",
+      "linkDownCount": "integer",
+      "linkUpCount": "integer",
+      "speedChangeCount": "integer",
+      "totalLinkDownMs": "number"
+    },
+    "ethernetEvent": {
+      "time": "date",
+      "kind": "string",
+      "previousState": "string|null",
+      "state": "string",
+      "previousSpeedMbps": "number|null",
+      "speedMbps": "number|null",
+      "observedDownMs": "number|null",
+      "rxErrorsDelta": "integer|null",
+      "txErrorsDelta": "integer|null",
+      "rxDiscardsDelta": "integer|null",
+      "txDiscardsDelta": "integer|null",
+      "message": "string"
+    },
+    "udpAnalysis": {
+      "state": "string",
+      "message": "string",
+      "gamePid": "integer",
+      "gameUdpEvents": "integer",
+      "selected": "udpPeer|null",
+      "candidates": "array"
+    },
+    "udpPeer": {
+      "remoteIp": "string",
+      "remotePort": "integer",
+      "localIp": "string",
+      "localPort": "integer",
+      "outEvents": "integer",
+      "inEvents": "integer",
+      "outBytes": "integer",
+      "inBytes": "integer",
+      "firstUnixMs": "integer",
+      "lastUnixMs": "integer",
+      "durationSeconds": "number",
+      "bidirectionalWindows": "integer",
+      "packetShare": "number",
+      "eligible": "boolean"
+    }
+  },
+  "states": {
+    "selection": [
+      "idle",
+      "choosing",
+      "complete",
+      "cancelled",
+      "error"
+    ],
+    "route": [
+      "idle",
+      "running",
+      "complete",
+      "error"
+    ],
+    "routePhase": [
+      "discovery",
+      "sampling",
+      "complete",
+      "error"
+    ],
+    "routeAssessment": [
+      "destination",
+      "unreachable",
+      "response_limit_possible",
+      "no_reply",
+      "responding",
+      "possible_path_issue"
+    ],
+    "reachability": [
+      "waiting",
+      "no_response_yet",
+      "responding"
+    ],
+    "relay": [
+      "idle",
+      "awaiting_admin",
+      "preparing",
+      "capturing",
+      "analyzing",
+      "adding",
+      "detected",
+      "no_active_flow",
+      "ambiguous",
+      "cancelled",
+      "error",
+      "complete"
+    ],
+    "adapterKind": [
+      "wifi",
+      "ethernet",
+      "historical"
+    ],
+    "protocol": [
+      "icmp",
+      "tcp",
+      "udp_dns"
+    ]
+  },
+  "measurementSemantics": {
+    "icmpTimeoutMs": 1200,
+    "icmpIntervalsMs": [
+      250,
+      1000
+    ],
+    "tcpIntervalMs": 5000,
+    "adapterIntervalMs": 500,
+    "historySeconds": 300,
+    "lossDenominator": "completed non-tool-error probes; pending probes excluded",
+    "jitter": "mean absolute RTT difference between adjacent successful probes, reset by unanswered probe",
+    "sessionP95": "1ms histogram, nearest rank; clamp at 10000ms",
+    "windowP95": "nearest rank over successful RTTs",
+    "neverRespondingDiagnosticLoss": null,
+    "diagnosisMaxConcurrent": 4,
+    "routeMaxConcurrent": 2,
+    "diagnosisDurationSeconds": 120,
+    "etwDurationSeconds": 20,
+    "etwPurpose": "detect active UDP peer; does not measure gameplay packet loss"
+  },
+  "storage": {
+    "encoding": "UTF-8, accept optional BOM on legacy files",
+    "csv": {
+      "probes.csv": "time,unix_ms,adapter,source_ip,interface_index,protocol,target,port,ok,status,rtt_ms,tool_error",
+      "adapters.csv": "time,elapsed_ms,adapter,index,state,ipv4,gateway,speed_mbps,rx_errors,tx_errors,rx_discards,tx_discards",
+      "diagnostic-probes.csv": "event_time,sent_time,target_id,protocol,address,source_ip,interface_index,payload_bytes,status,rtt_ms,scheduler_lag_ms",
+      "radio.csv": "time,statisticsError,rssiDbm,qualityPct,txRateNative,rxRateNative,txFrames,retryFrames,multipleRetryFrames,failedFrames,ackFailure,fcsErrors",
+      "ethernet.csv": "time,elapsed_ms,state,speed_mbps,rx_errors,tx_errors,rx_discards,tx_discards,counters_available,adapter_found,error",
+      "controlled-udp-probes.csv": "event_time,sent_time,sequence,status,rtt_ms,source_ip,interface_index,server,port"
+    },
+    "identity": {
+      "log-store.json": {
+        "appId": "codex-internet-stability",
+        "version": 1
+      },
+      "status.json": {
+        "appId": "codex-internet-stability"
+      },
+      "diagnosis-runs/<id>/run.json": {
+        "appId": "codex-network-diagnosis-run"
+      },
+      "diagnostics-live.json": {
+        "appId": "codex-single-pc-diagnostics"
+      },
+      "radio-live.json": {
+        "kind": "wifi_radio",
+        "schemaVersion": 1
+      },
+      "ethernet-live.json": {
+        "kind": "ethernet_line",
+        "schemaVersion": 1
+      },
+      "routes/*.json": {
+        "appId": "codex-internet-stability-route"
+      },
+      "capture.json": {
+        "appId": "codex-cod-relay-capture"
+      }
+    },
+    "events": "events.jsonl: one event object per line",
+    "compatibility": "append to valid legacy CSV; replay complete history and skip damaged rows with warning; read legacy diagnostic directories and current diagnosis-runs",
+    "deletion": "only owned files inside confirmed current store, reject symlinks/reparse points and active runs",
+    "runtimeChange": "diagnosis workers are Go goroutines in the backend PID; runtime.json is private lifecycle metadata, not a panel response"
+  }
+}
