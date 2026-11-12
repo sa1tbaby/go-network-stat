@@ -1,0 +1,66 @@
+Native Go Windows client — build
+================================
+
+Requires Go 1.24+. The repository has one root go.mod: github.com/sa1tbaby/go-network-stat.
+No PowerShell runtime, .NET, C# compiler or C compiler is required.
+
+Run from the repository root:
+  go run ./cmd/build
+
+Output:
+  dist/InternetStability.exe          Windows AMD64 GUI executable
+  data/build/build-result.json       size, SHA256, Go version and build time
+
+Optional:
+  go run ./cmd/build -output /path/to/InternetStability.exe -skip-tests
+
+On Windows, scripts/build.ps1 wraps the same Go command:
+  .\scripts\build.ps1 -Go 'C:\Tools\Go\bin\go.exe'
+
+The builder runs go test ./... unless -skip-tests is selected. It generates the
+manifest using tools/resources/main.go, builds from a temporary directory under
+data/build/, and removes that directory after success. Generated .syso files
+are not written into source directories. The only build dependency is the local
+checkout and the Go standard library; the staging module points to this checkout.
+
+frontend/dashboard.html contains the English panel; frontend/ holds
+the public target catalogs. frontend/desktop/ contains only native presentation
+and desktop supervision. Browser assets are declared in frontend/assets.go. They
+are embedded directly into the executable and cached under data/cache/ at runtime.
+The English interface preserves routes, JSON shapes and journal formats. The
+panel contract checksum tracks the current English HTML asset; the legacy panel
+checksum is recorded separately. Asset changes require an intentional checksum
+update; API changes require a corresponding panel-contract update. Tests and docs live outside the runtime source packages.
+
+Target Windows PC needs only the EXE. The server runs in --backend mode of that
+same executable. A separate --capture-worker helper obtains UAC for explicit ETW
+capture and uses the Windows logman.exe utility plus native Windows Event Log API.
+Worker mode dispatch and server lifecycle belong to backend/app/. HTTP transport
+and asset preparation belong to backend/api/; measurements and UDP echo belong
+to backend/networkmanager/. Native UI callbacks are injected from frontend.
+Settings, measurement history and other user data are not embedded in the EXE.
+
+backend/config/ owns settings import. backend/infrastructure/{data,fileutil,process}
+supplies shared path, atomic-write and Windows process primitives. API and
+NetworkManager are Go packages running in the same backend process.
+
+Application output is separated from source:
+  data/config/      preferences and custom targets
+  data/runtime/     process state and local server address
+  data/logs/        service logs
+  data/statistics/  default measurement store
+  data/cache/       immutable panel/catalog cache
+  data/build/       build state and temporary files
+  data/udp/         standalone controlled UDP echo reports
+
+An explicitly selected measurement folder remains the measurement store. The
+application does not move old history when importing legacy configuration.
+
+Validation commands, from the root:
+  go test ./...
+  go vet ./...
+
+All tests are under tests/{unit,integration,contract,platform}/<component>.
+Windows-only tests require Windows. Hardware, native GUI, multi-adapter source
+binding, UAC and real ETW require runtime verification on Windows; portable tests
+and cross-builds cannot establish those results.

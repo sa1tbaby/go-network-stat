@@ -1,0 +1,75 @@
+CONNECTION STABILITY — PORTABLE WINDOWS CLIENT
+
+Launch
+------
+Open dist\InternetStability.exe or a separately copied InternetStability.exe.
+No installation is needed: the EXE contains the Go client, server and collectors,
+plus the browser panel. Go, PowerShell and .NET are not required on the target PC.
+Windows x64 is required.
+
+Click “Open dashboard”. It opens in the browser at a local address,
+usually http://127.0.0.1:8765/. If the port is occupied, the next port is used.
+Closing the browser tab does not stop measurements.
+
+Minimizing, the close button and “Minimize to tray” hide the window from the taskbar.
+Double-click the tray icon to restore the window; right-click it to open the menu.
+“Exit — stop everything” stops the server and checks, saves results and removes
+the icon. Shutdown may take a few seconds.
+Launching the EXE again restores the existing window without starting a second server.
+After a Windows restart, launch the EXE again; no startup entry is added.
+
+Data and portability
+--------------------
+By default, a data folder is created beside the EXE. If the EXE is in dist,
+data is created beside dist, in the project root:
+  data\config       settings and added targets
+  data\runtime      dashboard address, PID and temporary process state
+  data\logs         service logs
+  data\statistics   measurements and check history
+  data\cache        extracted panel and public catalogs
+  data\build        build data
+  data\udp          standalone UDP utility reports
+
+If the default location is not writable, the per-user data directory is used,
+usually %LOCALAPPDATA%\InternetStability\data. The --data-dir argument specifies
+an absolute path to the root of the data tree, not just a settings file.
+
+You can select a separate measurement folder in the window or panel. The explicit
+selection is saved and used instead of data\statistics. Existing CSV/JSONL files
+and check results are not moved or reset during an update.
+
+The application imports settings from the former InternetStability-data,
+internet-stability and %APPDATA%\InternetStability folders. Import does not move
+history: select its existing folder to continue recording there.
+Folder selection is synchronized between the window and browser. Folder changes
+and reset are blocked during detailed checks, routes or game peer detection.
+
+To transfer settings, copy data\config. To transfer history, copy the selected
+measurement folder and select it on the new PC. If it is outside data,
+it must be transferred separately. The cache does not need to be copied.
+
+Checks and permissions
+----------------------
+The application provides separate Wi-Fi/Ethernet monitoring, routes, independent
+checks, history, game targets and active game UDP peer detection.
+Normal launch does not require administrator rights. Explicit UDP peer detection
+requests UAC only for a separate Go ETW collector.
+
+The server belongs to a Windows Job Object and stops with the client,
+including when the client is forcibly terminated. Detailed diagnostics run
+inside the server. A separate elevated ETW collector watches its owner and
+stops its own session when that owner exits. The application does not terminate games.
+
+For developers
+--------------
+The native window and tray live in frontend/desktop, the panel in frontend,
+and target catalogs in frontend/. Server components live in backend:
+api serves HTTP; networkmanager performs measurements. They run in one backend
+process. app connects components and manages launch modes, config stores settings,
+and infrastructure provides shared technical functions.
+Entry points live in cmd; backend does not import native desktop UI.
+The single Go module is at the root. Build from the root: go run ./cmd/build.
+Output EXE: dist\InternetStability.exe. Details: docs\BUILDING.txt.
+Optional wrappers: scripts\build.ps1 and scripts\windows\*.cmd.
+Start-Fast.cmd selects a 250 ms interval. Stop-Stability.cmd invokes
+--pause-monitor on the same EXE. Methodology: docs\methodology\README.txt.
